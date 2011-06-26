@@ -7,6 +7,14 @@
 #  Decorators
 #  @login_required
 
+import os
+
+# They are changing Django version, need to include this
+# http://code.google.com/appengine/docs/python/tools/libraries.html#Django
+from google.appengine.dist import use_library
+use_library('django', '1.2')
+from google.appengine.ext.webapp import template
+
 import wsgiref.handlers, logging
 import cgi, time, datetime
 from google.appengine.ext.webapp import template
@@ -17,11 +25,6 @@ from google.appengine.ext.webapp.util import run_wsgi_app
 #  from google.appengine.api import mail
 #  from google.appengine.api import memcache
 #  from google.appengine.api import taskqueue
-
-import os
-os.environ['DJANGO_SETTINGS_MODULE'] = 'settings'
-from google.appengine.dist import use_library
-use_library('django', '0.96')
 
 from usermodels import *  #I'm storing my models in usermodels.py
 
@@ -43,6 +46,10 @@ def main():
   application = webapp.WSGIApplication([('/', MainHandler)],
                                          debug = is_local())
                                          
+  
+  from gae_mini_profiler import profiler
+  application = profiler.ProfilerWSGIMiddleware(application)
+
   wsgiref.handlers.CGIHandler().run(application)
 
 
