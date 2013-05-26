@@ -30,8 +30,10 @@ from usermodels import *  #I'm storing my models in usermodels.py
 
 
 class MainHandler(webapp.RequestHandler):
-  def get(self):
+  def get(self, resource=''):
     render_template(self, 'templates/index.html')
+
+
 
 def is_local():
   # Turns on debugging error messages if on local env  
@@ -42,16 +44,11 @@ def render_template(call_from, template_name, template_values=dict()):
   path = os.path.join(os.path.dirname(__file__), template_name)
   call_from.response.out.write(template.render(path, template_values))
 
-def main():
-  application = webapp.WSGIApplication([('/', MainHandler)],
-                                         debug = is_local())
-                                         
+def render_json(self, data):
+  self.response.headers['Content-Type'] = 'application/json'
+  self.response.out.write(simplejson.dumps(data))
   
-  from gae_mini_profiler import profiler
-  application = profiler.ProfilerWSGIMiddleware(application)
-
-  wsgiref.handlers.CGIHandler().run(application)
 
 
-if __name__ == '__main__':
-  main()
+app = webapp.WSGIApplication([('/', MainHandler)],
+                              debug = is_local())
